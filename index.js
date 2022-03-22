@@ -123,6 +123,17 @@ image: mapImage
 
 const movables = [map, ...boundaries]; //...boundaries
 
+function keyPressed(arr) {
+    let keyPressed = false;
+    for (var key in arr) {
+        if (arr.hasOwnProperty(key)) {
+            if(arr[key].pressed)keyPressed=true;
+        }
+      }
+      
+    // console.log(keyPressed);
+    return keyPressed;
+}
 function rectangularCollision({rectangle1, rectangle2}) {
     return(
         rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
@@ -159,7 +170,7 @@ function animate(){
                 }}
             })){
                 moving=false;
-                console.log('collide');
+                // console.log('collide');
                 break;
             }
             
@@ -170,6 +181,8 @@ function animate(){
         }); 
         }
         
+    }else if(lastKey === 'w' && !keyPressed(keys)){
+        player.frames.val = 0;
     }
     if(keys.s.pressed){
         player.moving = true;
@@ -184,7 +197,7 @@ function animate(){
                 }}
             })){
                 moving=false;
-                console.log('collide');
+                // console.log('collide');
                 break;
             }
             
@@ -195,7 +208,9 @@ function animate(){
         }); 
         }
         
-    };
+    }else if(lastKey === 's' && !keyPressed(keys)){
+        player.frames.val = 0;
+    }
     if(keys.a.pressed){
         player.moving = true;
         player.image = player.sprite.left;
@@ -209,7 +224,7 @@ function animate(){
                 }}
             })){
                 moving=false;
-                console.log('collide');
+                // console.log('collide');
                 break;
             }
             
@@ -220,7 +235,9 @@ function animate(){
         }); 
         }
         
-    };
+    }else if(lastKey === 'a' && !keyPressed(keys)){
+        player.frames.val = 0;
+    }
     if(keys.d.pressed){
         player.moving = true;
         player.image = player.sprite.right;
@@ -234,7 +251,7 @@ function animate(){
                 }}
             })){
                 moving=false;
-                console.log('collide');
+                // console.log('collide');
                 break;
             }
             
@@ -244,7 +261,12 @@ function animate(){
             movable.position.x -=3;
         }); 
         }
-    };
+    }else if(lastKey === 'd' && !keyPressed(keys)){
+        player.frames.val = 0;
+    }
+
+    //add function for checking if there is another key pressed so it doesn't stop animation when another key is being pressed. Ex: key newKey keeps key
+
     // if(keys.w.pressed && lastKey === 'w')map.position.y += 3;
     // if(keys.s.pressed && lastKey === 's')map.position.y -= 3;
     // if(keys.a.pressed && lastKey === 'a')map.position.x += 3;
