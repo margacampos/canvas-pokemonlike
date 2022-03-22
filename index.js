@@ -11,8 +11,17 @@ for (let index = 0; index < collisions.length; index+=53) {
 const mapImage = new Image();
 mapImage.src = './assets/map.png';
 
-const playerImage = new Image();
-playerImage.src = './assets/HEROS8bit_Adventurer Walk R.png'
+const playerRight = new Image();
+playerRight.src = './assets/HEROS8bit_Adventurer Walk R.png'
+
+const playerLeft = new Image();
+playerLeft.src = './assets/HEROS8bit_Adventurer Walk L.png'
+
+const playerUp = new Image();
+playerUp.src = './assets/HEROS8bit_Adventurer Walk U.png'
+
+const playerDown = new Image();
+playerDown.src = './assets/HEROS8bit_Adventurer Walk D.png'
 
 const OFFSET = {
     x: -((mapImage.width-1300)/2),
@@ -28,7 +37,7 @@ class Boundary{
         this.height = 72;
     }
     draw(){
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+        ctx.fillStyle = 'rgba(255, 0, 0, 0)';
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
@@ -64,7 +73,7 @@ const keys = {
 let lastKey = '';
 
 class Sprite {
-    constructor({position, image, frames = {max:1}}){
+    constructor({position, image, frames = {max:1}, sprite}){
         this.position = position;
         this.image = image;
         this.frames = {...frames, val: 0, elapsed: 0};
@@ -73,6 +82,7 @@ class Sprite {
             this.height = this.image.height;
         }
         this.moving = false;
+        this.sprite = sprite;
     }
     draw(){
         
@@ -95,7 +105,13 @@ const player = new Sprite({
         y: (canvas.height/2)-((72/4)/2)
     },
     frames: {max: 4},
-    image: playerImage
+    image: playerDown,
+    sprite: {
+        up: playerUp,
+        down:playerDown,
+        left:playerLeft,
+        right:playerRight
+    }
 })
 const map = new Sprite({position:{
     x: OFFSET.x,
@@ -132,6 +148,7 @@ function animate(){
 
     if(keys.w.pressed){
         player.moving = true;
+        player.image = player.sprite.up;
         for (let i = 0; i < boundaries.length; i++) {
             const bound = boundaries[i];
             if (rectangularCollision({
@@ -156,6 +173,7 @@ function animate(){
     }
     if(keys.s.pressed){
         player.moving = true;
+        player.image = player.sprite.down;
         for (let i = 0; i < boundaries.length; i++) {
             const bound = boundaries[i];
             if (rectangularCollision({
@@ -180,6 +198,7 @@ function animate(){
     };
     if(keys.a.pressed){
         player.moving = true;
+        player.image = player.sprite.left;
         for (let i = 0; i < boundaries.length; i++) {
             const bound = boundaries[i];
             if (rectangularCollision({
@@ -204,6 +223,7 @@ function animate(){
     };
     if(keys.d.pressed){
         player.moving = true;
+        player.image = player.sprite.right;
         for (let i = 0; i < boundaries.length; i++) {
             const bound = boundaries[i];
             if (rectangularCollision({
