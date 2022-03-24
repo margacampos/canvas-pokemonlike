@@ -1,4 +1,5 @@
 const canvas = document.getElementById('pokemon');
+const transitionDiv = document.getElementById('transition');
 canvas.width = window.innerWidth-50;
 canvas.height = window.innerHeight-50;
 const ctx = canvas.getContext('2d');
@@ -160,8 +161,12 @@ function rectangularCollision({rectangle1, rectangle2}) {
     );
 }
 
+const battle = {
+    initiated: false
+};
+
 function animate(){
-    window.requestAnimationFrame(animate);
+    const frameId = window.requestAnimationFrame(animate);
     let moving = true;
 
     canvas.width = window.innerWidth-50;
@@ -180,6 +185,8 @@ function animate(){
     player.draw();
 
     player.moving = false;
+
+    if(battle.initiated) return;
 
     if(keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed){
         for (let i = 0; i < battleZones.length; i++) {
@@ -202,8 +209,12 @@ function animate(){
                 rectangle2: battlezone
             }) && 
             overlappingArea > (player.width*player.height)/2){
-                console.log('collide');
-
+                window.cancelAnimationFrame(frameId);
+                animateBattle();
+                transitionDiv.classList.add('animateIn');
+                player.image = player.sprite.down;
+                player.frames.val = 0;
+                battle.initiated = true;
                 break;
             }
             
@@ -329,6 +340,9 @@ function animate(){
 
 animate();
 
+function animateBattle() {
+    const frameId = window.requestAnimationFrame(animateBattle);
+}
 window.addEventListener('keydown', (e)=>{
     switch (e.key) {
         case 'w':

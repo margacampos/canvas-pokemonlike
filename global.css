@@ -18,3 +18,34 @@ main {
 #pokemon {
   background-color: #488bd4;
 }
+
+#transition {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0);
+  height: 100vh;
+  width: 100vw;
+}
+.animateOut {
+  animation: Transition 1.5s ease-in-out reverse forwards;
+}
+.animateIn {
+  animation: Transition 1s ease-in-out forwards;
+}
+
+@keyframes Transition {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+    transform: scale(0);
+    border-radius: 50%;
+  }
+
+  to {
+    transform: scale(1);
+    background-color: rgba(0, 0, 0, 1);
+    border-radius: 0%;
+  }
+}
