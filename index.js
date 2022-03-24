@@ -3,6 +3,11 @@ canvas.width = window.innerWidth-50;
 canvas.height = window.innerHeight-50;
 const ctx = canvas.getContext('2d');
 const collisionsMap = [];
+const battleMap = [];
+
+for (let index = 0; index < battleCollision.length; index+=53) {
+    battleMap.push(battleCollision.slice(index, 53 + index));
+}
 
 for (let index = 0; index < collisions.length; index+=53) {
     collisionsMap.push(collisions.slice(index, 53 + index));
@@ -265,7 +270,7 @@ function animate(){
         player.frames.val = 0;
     }
 
-    //add function for checking if there is another key pressed so it doesn't stop animation when another key is being pressed. Ex: key newKey keeps key
+
 
     // if(keys.w.pressed && lastKey === 'w')map.position.y += 3;
     // if(keys.s.pressed && lastKey === 's')map.position.y -= 3;
