@@ -26,6 +26,22 @@ mapImage.src = './assets/map.png';
 const battleBackgImage = new Image();
 battleBackgImage.src = './assets/battle-background.jpg';
 
+//Enemy
+
+const enemyBlobWalkImage = new Image();
+enemyBlobWalkImage.src = './assets/enemies/ENEMIES8bit_Blob Walk.png'
+
+const enemyBlobDeathImage = new Image();
+enemyBlobDeathImage.src = './assets/enemies/ENEMIES8bit_Blob Death.png'
+
+const enemyNegaBlobWalkImage = new Image();
+enemyNegaBlobWalkImage.src = './assets/enemies/ENEMIES8bit_NegaBlob Walk.png'
+
+const enemyNegaBlobDeathImage = new Image();
+enemyNegaBlobDeathImage.src = './assets/enemies/ENEMIES8bit_NegaBlob Death.png'
+
+//Player
+
 const playerRight = new Image();
 playerRight.src = './assets/HEROS8bit_Adventurer Walk R.png'
 
@@ -48,6 +64,7 @@ class Boundary{
     static height = 72;
     constructor(position){
         this.position = position;
+        this.originalPosition = position;
         this.width = 72;
         this.height = 72;
     }
@@ -151,6 +168,23 @@ const battleBackground = new Sprite({position:{
 image: battleBackgImage
 })
 
+//Enemies
+
+const enemyBlob = new Sprite({
+    position:{
+        x:(canvas.width/2)-((572/4)/2)-25,
+        y: (canvas.height/2)-((72/4)/2)
+    },
+    frames: {max: 5},
+    image: enemyBlobWalkImage,
+    sprite: {
+        walkPink: enemyBlobWalkImage,
+        deathPink: enemyBlobDeathImage,
+        walkNega:enemyNegaBlobWalkImage,
+        deathNega:enemyNegaBlobDeathImage
+    }
+})
+
 const movables = [map, ...boundaries, ...battleZones]; //Everything we want to move with the background
 
 function keyPressed(arr) {
@@ -241,7 +275,10 @@ function animate(){
                     setTimeout(function(){
                         transitionDiv.classList.add('animateOut');
                         transitionDiv.classList.remove('onScreen');
-                    }, 100);
+                        setTimeout(function(){
+                            transitionDiv.classList.remove('animateOut');
+                        }, 1000);
+                    }, 50);
                 });
                 break;
             }
@@ -366,14 +403,116 @@ function animate(){
     // if(keys.d.pressed && lastKey === 'd')map.position.x -= 3;
 }
 
-animate();
+// animate(); //For development purposes
 
+let rangeX = 0;
+let rangeY = 0;
+let jumpX = 1;
+let jumpY = 1;
+let randomEnemy = 2;
 function animateBattle() {
     const frameId = window.requestAnimationFrame(animateBattle);
     ctx.fillStyle = 'rgba(0, 0, 0, 1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     battleBackground.draw();
+    enemyBlob.frames.max = 5;
+
+    if (keys.space.pressed){
+        window.cancelAnimationFrame(frameId);
+        map.position.x = OFFSET.x;
+        map.position.y = OFFSET.y;
+        boundaries.forEach((bound)=>{
+            bound.position = {
+                x: bound.originalPosition.x,
+                y: bound.originalPosition.y
+            }
+            
+        });
+    
+        battleZones.forEach((battlezone)=>{
+            battlezone.position = {
+                x: battlezone.originalPosition.x,
+                y: battlezone.originalPosition.y
+            }
+            
+        });
+        player.image = player.sprite.down;
+        player.frames.val = 0;
+        transitionDiv.classList.add('animateIn');
+        transitionDiv.classList.add('onScreen');
+        let endBattle =  new Promise((resolve, reject) => {
+            setTimeout(function(){
+              transitionDiv.classList.remove('animateIn');
+              animate();             
+              resolve("¡Éxito!"); // ¡Todo salió bien!
+            }, 1000);
+          });
+        endBattle.then((a)=>{
+            battle.initiated = false;
+            setTimeout(function(){
+                transitionDiv.classList.add('animateOut');
+                transitionDiv.classList.remove('onScreen');
+                setTimeout(function(){
+                    transitionDiv.classList.remove('animateOut');
+                }, 1000);
+            }, 50);
+        });
+    };
+
+    if(randomEnemy===1){
+        enemyBlob.image = enemyBlob.sprite.walkPink;
+    }else if(randomEnemy===2){
+        enemyBlob.image = enemyBlob.sprite.walkNega;
+    }
+
+    if (keys.w.pressed){
+        if(randomEnemy===1){
+            enemyBlob.image = enemyBlob.sprite.walkPink;
+        }else if(randomEnemy===2){
+            enemyBlob.image = enemyBlob.sprite.walkNega;
+        }
+        enemyBlob.frames.max = 5;
+        enemyBlob.moving = true;
+        enemyBlob.position.x +=jumpX;
+        enemyBlob.position.y -=jumpY;
+        rangeY++;
+        rangeX++;
+        if(rangeX>=50){
+            jumpX = -jumpX;
+            rangeX = 0;
+        }
+        if(rangeY>=25){
+            jumpY = -jumpY;
+            rangeY = 0;
+        }
+
+    }else if(keys.s.pressed){
+        enemyBlob.frames.max = 3;
+        if(randomEnemy===1){
+            enemyBlob.image = enemyBlob.sprite.deathPink;
+        }else if(randomEnemy===2){
+            enemyBlob.image = enemyBlob.sprite.deathNega;
+        }
+        enemyBlob.moving = true;
+
+    }else if(keys.d.pressed && randomEnemy<2){
+        randomEnemy++;
+    }else if(keys.a.pressed && randomEnemy>1){
+        randomEnemy--;
+    }else {
+        enemyBlob.frames.val = 0;
+        enemyBlob.moving = false;
+        enemyBlob.position.y = (canvas.height/2)-((72/4)/2);
+        enemyBlob.position.x = (canvas.width/2)-((72/4)/2)-25;
+        rangeX = 0;
+        rangeY = 0;
+        jumpX = 1;
+        jumpY = 1;
+    }
+    enemyBlob.draw();
+
 }
+animateBattle();
 window.addEventListener('keydown', (e)=>{
     switch (e.key) {
         case 'w':
