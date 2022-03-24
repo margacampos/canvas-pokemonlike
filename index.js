@@ -2,12 +2,14 @@ const canvas = document.getElementById('pokemon');
 canvas.width = window.innerWidth-50;
 canvas.height = window.innerHeight-50;
 const ctx = canvas.getContext('2d');
-const collisionsMap = [];
+
 const battleMap = [];
 
 for (let index = 0; index < battleCollision.length; index+=53) {
     battleMap.push(battleCollision.slice(index, 53 + index));
 }
+
+const collisionsMap = [];
 
 for (let index = 0; index < collisions.length; index+=53) {
     collisionsMap.push(collisions.slice(index, 53 + index));
@@ -42,7 +44,7 @@ class Boundary{
         this.height = 72;
     }
     draw(){
-        ctx.fillStyle = 'rgba(255, 0, 0, 0)';
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
@@ -57,6 +59,15 @@ collisionsMap.forEach((rows, i)=>{
     })
 })
 
+const battleZones = [];
+
+battleMap.forEach((rows, i)=>{
+    rows.forEach((symbol, j)=>{
+        if(symbol == 457){
+            battleZones.push(new Boundary({x:j*Boundary.width+OFFSET.x ,y:i*Boundary.height+OFFSET.y})); 
+        }
+    })
+})
 
 const keys = {
     w:{
@@ -126,7 +137,7 @@ image: mapImage
 })
 
 
-const movables = [map, ...boundaries]; //...boundaries
+const movables = [map, ...boundaries, ...battleZones]; //Everything we want to move with the background
 
 function keyPressed(arr) {
     let keyPressed = false;
@@ -139,6 +150,7 @@ function keyPressed(arr) {
     // console.log(keyPressed);
     return keyPressed;
 }
+
 function rectangularCollision({rectangle1, rectangle2}) {
     return(
         rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
@@ -147,6 +159,7 @@ function rectangularCollision({rectangle1, rectangle2}) {
         rectangle1.position.y + rectangle1.height >= rectangle2.position.y 
     );
 }
+
 function animate(){
     window.requestAnimationFrame(animate);
     let moving = true;
@@ -157,10 +170,45 @@ function animate(){
     boundaries.forEach((bound)=>{
         bound.draw();
         
-    })
+    });
+
+    battleZones.forEach((battlezone)=>{
+        battlezone.draw();
+        
+    });
+
     player.draw();
 
     player.moving = false;
+
+    if(keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed){
+        for (let i = 0; i < battleZones.length; i++) {
+            const battlezone = battleZones[i];
+
+            const overlappingArea = 
+            (Math.min(
+                player.position.x + player.width,
+                battlezone.position.x+battlezone.width
+            ) -
+            Math.max(player.position.x, battlezone.position.x)) *
+            (Math.min(
+                player.position.y + player.height,
+                battlezone.position.y + battlezone.height
+            ) -
+            Math.max(player.position.y, battlezone.position.y));
+
+            if (rectangularCollision({
+                rectangle1: player, 
+                rectangle2: battlezone
+            }) && 
+            overlappingArea > (player.width*player.height)/2){
+                console.log('collide');
+
+                break;
+            }
+            
+        }
+    }
 
     if(keys.w.pressed){
         player.moving = true;
@@ -180,6 +228,7 @@ function animate(){
             }
             
         }
+        
         if (moving){
            movables.forEach((movable)=>{
             movable.position.y +=3;
