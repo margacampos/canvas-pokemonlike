@@ -25,12 +25,17 @@ main {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0);
   height: 100vh;
   width: 100vw;
 }
+
+.onScreen {
+  transform: scale(1);
+  background-color: rgba(0, 0, 0, 1);
+  border-radius: 0%;
+}
 .animateOut {
-  animation: Transition 1.5s ease-in-out reverse forwards;
+  animation: Transition 1s ease-in-out reverse forwards;
 }
 .animateIn {
   animation: Transition 1s ease-in-out forwards;

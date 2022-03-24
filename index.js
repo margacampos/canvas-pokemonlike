@@ -1,8 +1,12 @@
+// import {mapImage, playerDown, playerRight, playerUp, playerLeft} from './modules/images';
+
 const canvas = document.getElementById('pokemon');
 const transitionDiv = document.getElementById('transition');
 canvas.width = window.innerWidth-50;
 canvas.height = window.innerHeight-50;
 const ctx = canvas.getContext('2d');
+
+
 
 const battleMap = [];
 
@@ -18,6 +22,9 @@ for (let index = 0; index < collisions.length; index+=53) {
 
 const mapImage = new Image();
 mapImage.src = './assets/map.png';
+
+const battleBackgImage = new Image();
+battleBackgImage.src = './assets/battle-background.jpg';
 
 const playerRight = new Image();
 playerRight.src = './assets/HEROS8bit_Adventurer Walk R.png'
@@ -90,7 +97,7 @@ const keys = {
 let lastKey = '';
 
 class Sprite {
-    constructor({position, image, frames = {max:1}, sprite}){
+    constructor({position, image, frames = {max:1}, sprite }){
         this.position = position;
         this.image = image;
         this.frames = {...frames, val: 0, elapsed: 0};
@@ -136,7 +143,13 @@ const map = new Sprite({position:{
 },
 image: mapImage
 })
-
+const battleBackground = new Sprite({position:{
+    x: 0,
+    y: 0,
+    
+},
+image: battleBackgImage
+})
 
 const movables = [map, ...boundaries, ...battleZones]; //Everything we want to move with the background
 
@@ -168,7 +181,6 @@ const battle = {
 function animate(){
     const frameId = window.requestAnimationFrame(animate);
     let moving = true;
-
     canvas.width = window.innerWidth-50;
     canvas.height = window.innerHeight-50;
     map.draw();
@@ -210,11 +222,27 @@ function animate(){
             }) && 
             overlappingArea > (player.width*player.height)/2){
                 window.cancelAnimationFrame(frameId);
-                animateBattle();
                 transitionDiv.classList.add('animateIn');
+                transitionDiv.classList.add('onScreen');
                 player.image = player.sprite.down;
                 player.frames.val = 0;
-                battle.initiated = true;
+                player.draw();
+                let initiateBattle =  new Promise((resolve, reject) => {
+                    setTimeout(function(){
+                      transitionDiv.classList.remove('animateIn');
+                      animateBattle();
+                      console.log('hey async no more')
+                      resolve("¡Éxito!"); // ¡Todo salió bien!
+                    }, 1000);
+                  });
+                initiateBattle.then((a)=>{
+                    console.log(a);
+                    battle.initiated = true;
+                    setTimeout(function(){
+                        transitionDiv.classList.add('animateOut');
+                        transitionDiv.classList.remove('onScreen');
+                    }, 100);
+                });
                 break;
             }
             
@@ -342,6 +370,9 @@ animate();
 
 function animateBattle() {
     const frameId = window.requestAnimationFrame(animateBattle);
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    battleBackground.draw();
 }
 window.addEventListener('keydown', (e)=>{
     switch (e.key) {
