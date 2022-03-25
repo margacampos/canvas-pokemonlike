@@ -69,7 +69,7 @@ class Boundary{
         this.height = 72;
     }
     draw(){
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        ctx.fillStyle = 'rgba(255, 0, 0, 0)';
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
@@ -403,7 +403,7 @@ function animate(){
     // if(keys.d.pressed && lastKey === 'd')map.position.x -= 3;
 }
 
-// animate(); //For development purposes
+animate();
 
 let rangeX = 0;
 let rangeY = 0;
@@ -512,7 +512,6 @@ function animateBattle() {
     enemyBlob.draw();
 
 }
-animateBattle();
 window.addEventListener('keydown', (e)=>{
     switch (e.key) {
         case 'w':
